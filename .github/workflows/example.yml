@@ -1,0 +1,26 @@
+name: Example Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request_target:
+    types: [labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  print_secret:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'pull_request_target' && (github.event.label.name == 'safe-to-test' || github.event.label.name == 'ok-to-test'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Secret
+        env:
+          SECURITY_KEY: ${{ secrets.SECURITY_KEY }}
+        run: echo "The secret is $SECURITY_KEY"
